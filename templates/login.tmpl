@@ -1,0 +1,20 @@
+{{define "login_page"}}
+ {{template "header" .}}
+  <form action="/login/" method="post">
+   <div class="row">
+    <div class="six columns">
+     <label for="exampleEmailInput">Username</label>
+     <input class="u-full-width" type="text" name="username" id="exampleEmailInput">
+     <label for="exampleEmailInput">Password</label>
+     <input class="u-full-width" type="password" name="password" id="exampleEmailInput">
+    </div>
+   </div>
+   <div class="row">
+    <div class="six columns">
+     <label for="submit"></label>
+     <input class="button-primary u-full-width" id="submit" type="submit" value="Submit">
+    </div>
+   </div>
+  </form>
+ {{template "footer" .}}
+{{end}}

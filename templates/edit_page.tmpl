@@ -1,0 +1,13 @@
+{{define "edit_page"}}
+ {{template "header" .}}
+  <div class="row"></div>
+  <div class="row">
+   <div class="twelve columns" id="editor">{{.Markdown}}</div>
+  </div> 
+  <div class="row">
+   <div class="twelve columns">
+    <button id="submit">submit</button>
+   </div>
+  </div>
+ {{template "footer" .}}
+{{end}}

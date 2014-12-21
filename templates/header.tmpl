@@ -1,0 +1,51 @@
+{{define "header"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>blog.dead.coffee</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'>
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/skeleton.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="/img/favicon.png" />
+  <style type="text/css" media="screen">
+      #editor { 
+        position: relative; height: 640px; }
+      .dropzone { 
+        width: 100%; height: 100%; }
+      .navbutton {
+        display: block; }
+  </style>
+</head>
+<body>
+ <div id="dropzone" class="dropzone">
+  <div class="container">
+  <div class="row"></div>
+   <div class="row">
+    <div class="twelve columns">  
+     <a href="/index/" class="button u-pull-left">Home</a>
+     <a href="/about/" class="button u-pull-left">About</a>
+     <a href="/contact/" class="button u-pull-left">Contact</a>
+     <a href="/login/" class="button u-pull-right">Login</a>
+     <a href="./edit" class="button u-pull-right">Edit</a>
+    </div>
+   </div>
+{{end}}
