@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday"
+	"github.com/zenazn/goji/web"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -15,11 +15,13 @@ import (
 	"strings"
 )
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/index/", http.StatusFound)
+func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
+	http.Redirect(w, r, "/index", http.StatusFound)
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func loginHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
 	if r.Method == "GET" {
 		templates := template.Must(template.ParseGlob("./templates/*.tmpl"))
 		if err := templates.ExecuteTemplate(w, "login_page", nil); err != nil {
@@ -29,13 +31,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if r.Method == "POST" {
-		log.Println(r.FormValue("username"), r.FormValue("password"))
+		session := initSession(r)
+		log.Println("isnew:", session.IsNew)
 		http.Redirect(w, r, "/index/", http.StatusFound)
 	}
 }
 
-func articleViewHandler(w http.ResponseWriter, r *http.Request) {
-	articleId := mux.Vars(r)["article"]
+func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
+	articleId := c.URLParams["article"]
 	var article Article
 	err := db.Read("article", articleId, &article)
 	if err != nil {
@@ -54,8 +58,9 @@ func articleViewHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func articleEditHandler(w http.ResponseWriter, r *http.Request) {
-	articleId := mux.Vars(r)["article"]
+func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
+	articleId := c.URLParams["article"]
 	if r.Method == "GET" {
 		var article Article
 		err := db.Read("article", articleId, &article)
@@ -136,7 +141,8 @@ func (r Response) String() (s string) {
 	return
 }
 
-func uploadPostHandler(w http.ResponseWriter, r *http.Request) {
+func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
 	err := r.ParseMultipartForm(200000) // grab the multipart form
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -197,7 +203,8 @@ func uploadPostHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, Response{"status": "ok", "urls": urls})
 }
 
-func viewImageHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	http.ServeFile(w, r, "./upload/"+vars["file"])
+func viewImageHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	log.Println(c.Env, c.URLParams)
+	file := c.URLParams["file"]
+	http.ServeFile(w, r, "./upload/"+file)
 }
