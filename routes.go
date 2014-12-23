@@ -1,10 +1,54 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
+	"github.com/zenazn/goji"
+	"github.com/zenazn/goji/web"
 	"net/http"
 )
 
+// Server keeps up the http server
+type Server struct {
+	host string
+	port string
+}
+
+func newServer(host string, port string) *Server {
+	s := &Server{
+		host: host,
+		port: port,
+	}
+	return s
+}
+
+func (s *Server) Start() {
+	// Root routes
+	goji.Get("/", indexHandler)
+
+	// Login routes
+	goji.Get("/login/", loginHandler)
+	goji.Post("/login/", loginHandler)
+
+	// Admin console
+	admin := web.New()
+	goji.Handle("/admin/*", admin)
+
+	// Image up/download
+	goji.Post("/upload/", uploadPostHandler)
+	goji.Get("/img/:file", viewImageHandler)
+
+	// Article routes
+	goji.Get("/:article/", articleViewHandler)
+	goji.Get("/:article/edit", articleEditHandler)
+	goji.Post("/:article/edit", articleEditHandler)
+
+	// Static routes
+	goji.Get("/*", http.FileServer(http.Dir("./static/")))
+
+	// Serve static files
+	goji.Serve()
+}
+
+/*
 type Server struct {
 	host string
 	port string
@@ -19,6 +63,7 @@ func NewServer(host, port string) *Server {
 	}
 	return s
 }
+
 
 func (s *Server) Start() {
 	s.r.StrictSlash(true)
@@ -40,3 +85,4 @@ func (s *Server) Start() {
 	http.Handle("/", s.r)
 	http.ListenAndServe(s.host+":"+s.port, nil)
 }
+*/
