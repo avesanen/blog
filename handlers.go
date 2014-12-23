@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/microcosm-cc/bluemonday"
-	"github.com/russross/blackfriday"
 	"github.com/zenazn/goji/web"
 	"html/template"
 	"io"
@@ -16,8 +14,9 @@ import (
 )
 
 func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	log.Println(c.Env, c.URLParams)
-	http.Redirect(w, r, "/index", http.StatusFound)
+	rnd := randSeq(8)
+	log.Println(rnd)
+	http.Redirect(w, r, "/"+rnd+"/", http.StatusSeeOther)
 }
 
 func loginHandler(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -112,9 +111,7 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 
 		article.Markdown = string(form["content"])
-		unsafe := blackfriday.MarkdownCommon([]byte(article.Markdown))
-		html := template.HTML(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
-		article.Content = html
+		article.render()
 
 		if err := db.Write("article", articleId, &article); err != nil {
 			log.Println("Error saving article:", err.Error())
