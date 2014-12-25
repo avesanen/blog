@@ -14,29 +14,15 @@ import (
 )
 
 func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	rnd := randSeq(8)
-	log.Println(rnd)
-	http.Redirect(w, r, "/"+rnd+"/", http.StatusSeeOther)
-}
-
-func loginHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	log.Println(c.Env, c.URLParams)
-	if r.Method == "GET" {
-		templates := template.Must(template.ParseGlob("./templates/*.tmpl"))
-		if err := templates.ExecuteTemplate(w, "login_page", nil); err != nil {
-			log.Println("Error rendering template:", err.Error())
-			http.Error(w, err.Error(), 500)
-			return
-		}
-	}
-	if r.Method == "POST" {
-		session := initSession(r)
-		log.Println("isnew:", session.IsNew)
-		http.Redirect(w, r, "/index/", http.StatusFound)
-	}
+	//rnd := randSeq(8)
+	//log.Println(rnd)
+	http.Redirect(w, r, "/index/", http.StatusSeeOther)
 }
 
 func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	s := getSession(r)
+	log.Println("Session:", s)
+
 	log.Println(c.Env, c.URLParams)
 	articleId := c.URLParams["article"]
 	var article Article
@@ -47,10 +33,13 @@ func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, Response{"status": "ok", "url": "/" + articleId})
 		return
 	}
+	renderTemplate(w, r, "view_page", map[string]interface{}{"Article": article})
+}
 
+func renderTemplate(w http.ResponseWriter, r *http.Request, t string, a map[string]interface{}) {
 	templates := template.Must(template.ParseGlob("./templates/*.tmpl"))
-	err = templates.ExecuteTemplate(w, "view_page", article)
-	if err != nil {
+	a["Session"] = getSession(r)
+	if err := templates.ExecuteTemplate(w, t, a); err != nil {
 		log.Println("Error rendering template:", err.Error())
 		http.Error(w, err.Error(), 500)
 		return
@@ -58,8 +47,12 @@ func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	log.Println(c.Env, c.URLParams)
 	articleId := c.URLParams["article"]
+	s := getSession(r)
+	if s == nil {
+		log.Println("Trying to edit while not logged in.")
+		http.Redirect(w, r, "/"+articleId+"/", http.StatusFound)
+	}
 	if r.Method == "GET" {
 		var article Article
 		err := db.Read("article", articleId, &article)
@@ -74,12 +67,7 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		templates := template.Must(template.ParseGlob("./templates/*.tmpl"))
-		err = templates.ExecuteTemplate(w, "edit_page", article)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
+		renderTemplate(w, r, "edit_page", map[string]interface{}{"Article": article})
 	} else if r.Method == "POST" {
 		var article Article
 		err := db.Read("article", articleId, &article)

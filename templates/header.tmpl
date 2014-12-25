@@ -37,16 +37,20 @@
   </style>
 </head>
 <body>
- <div id="dropzone" class="dropzone">
-  <div class="container">
-  <div class="row"></div>
-   <div class="row">
-    <div class="twelve columns">  
-     <a href="/index/" class="button u-pull-left">Home</a>
-     <a href="/about/" class="button u-pull-left">About</a>
-     <a href="/contact/" class="button u-pull-left">Contact</a>
-     <a href="/login/" class="button u-pull-right">Login</a>
-     <a href="./edit" class="button u-pull-right">Edit</a>
-    </div>
-   </div>
+  <div id="dropzone" class="dropzone">
+    <div class="container">
+      <div class="row"></div>
+       <div class="row">
+        <div class="twelve columns">  
+         <a href="/index/" class="button u-pull-left">Home</a>
+         <a href="/about/" class="button u-pull-left">About</a>
+         {{if .Session}}
+          <a href="./edit" class="button u-pull-right">Edit</a>
+          <a href="/logout/" class="button u-pull-right">Logout {{.Session.User.Username }}</a>
+         {{ else }}
+          <a href="/login/" class="button u-pull-right">Login</a>
+         {{end}}
+       </div>
+      </div>
+
 {{end}}

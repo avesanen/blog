@@ -16,7 +16,8 @@ func init() {
 }
 
 func main() {
+	db.Write("users", "admin", &User{Username: "admin", Password: "$2a$10$76B/HUE7CTqMrsjrreMxNukqZw1VJBskAETxeKJ.SmsC9G9hmChpi"})
 	log.Println("Blog started.")
-	s := newServer("", "5001")
+	s := newServer("", "5000")
 	s.Start()
 }

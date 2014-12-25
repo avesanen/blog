@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/web"
 	"net/http"
@@ -17,6 +18,7 @@ func newServer(host string, port string) *Server {
 		host: host,
 		port: port,
 	}
+	flag.Set("bind", host+":"+port)
 	return s
 }
 
@@ -27,6 +29,7 @@ func (s *Server) Start() {
 	// Login routes
 	goji.Get("/login/", loginHandler)
 	goji.Post("/login/", loginHandler)
+	goji.Get("/logout/", logoutHandler)
 
 	// Admin console
 	admin := web.New()
