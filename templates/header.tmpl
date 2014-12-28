@@ -6,7 +6,7 @@
   <!-- Basic Page Needs
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
-  <title>blog.dead.coffee</title>
+  <title>{{.Article.Title}}</title>
   <meta name="description" content="">
   <meta name="author" content="">
 
@@ -44,11 +44,9 @@
         <div class="twelve columns">  
          <a href="/index/" class="button u-pull-left">Home</a>
          <a href="/about/" class="button u-pull-left">About</a>
+         <a href="./edit" class="button u-pull-right">Edit</a>
          {{if .Session}}
-          <a href="./edit" class="button u-pull-right">Edit</a>
-          <a href="/logout/" class="button u-pull-right">Logout {{.Session.User.Username }}</a>
-         {{ else }}
-          <a href="/login/" class="button u-pull-right">Login</a>
+          <a href="/logout" class="button u-pull-right">Logout {{.Session.User.Username }}</a>
          {{end}}
        </div>
       </div>

@@ -3,6 +3,7 @@
 	var dropzone = document.getElementById('dropzone');
 	var editor = ace.edit("editor");
 	var submit = document.getElementById('submit');
+	var cancel = document.getElementById('cancel');
 
 	editor.setTheme("ace/theme/chaos");
 	editor.getSession().setMode("ace/mode/markdown");
@@ -51,8 +52,15 @@
 	}
 
 	submit.onclick = function () {
-		console.log("Submit");
-		submitEditor(editor.getSession().getValue());
+		var content = {};
+		content.markdown = editor.getSession().getValue();
+		content.comments = document.getElementById('enableComments').checked.toString();
+		content.title = document.getElementById('pageTitle').value;
+		submitEditor(content);
+		return false;
+	}
+	cancel.onclick = function () {
+		window.location.href = "./";
 		return false;
 	}
 
@@ -69,7 +77,7 @@
 			}
 		  } 
 		};
-		xhr.send(JSON.stringify({content:content}));
+		xhr.send(JSON.stringify(content));
 	}
 
 }());

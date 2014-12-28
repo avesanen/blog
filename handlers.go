@@ -13,27 +13,15 @@ import (
 	"strings"
 )
 
-func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	//rnd := randSeq(8)
-	//log.Println(rnd)
-	http.Redirect(w, r, "/index/", http.StatusSeeOther)
-}
-
-func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	s := getSession(r)
-	log.Println("Session:", s)
-
-	log.Println(c.Env, c.URLParams)
-	articleId := c.URLParams["article"]
-	var article Article
-	err := db.Read("article", articleId, &article)
-	if err != nil {
-		http.Redirect(w, r, "/"+articleId+"/edit", http.StatusFound)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, Response{"status": "ok", "url": "/" + articleId})
-		return
+func requiresLogin(h web.HandlerFunc) web.HandlerFunc {
+	fn := func(c web.C, w http.ResponseWriter, r *http.Request) {
+		if s := getSession(r); s == nil {
+			renderTemplate(w, r, "login_page", map[string]interface{}{})
+		} else {
+			h.ServeHTTPC(c, w, r)
+		}
 	}
-	renderTemplate(w, r, "view_page", map[string]interface{}{"Article": article})
+	return fn
 }
 
 func renderTemplate(w http.ResponseWriter, r *http.Request, t string, a map[string]interface{}) {
@@ -46,13 +34,25 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, t string, a map[stri
 	}
 }
 
+func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/index/", http.StatusSeeOther)
+}
+
+func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	articleId := c.URLParams["article"]
+	var article Article
+	err := db.Read("article", articleId, &article)
+	if err != nil {
+		http.Redirect(w, r, "/"+articleId+"/edit", http.StatusFound)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, Response{"status": "ok", "url": "/" + articleId})
+		return
+	}
+	renderTemplate(w, r, "view_page", map[string]interface{}{"Article": article})
+}
+
 func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 	articleId := c.URLParams["article"]
-	s := getSession(r)
-	if s == nil {
-		log.Println("Trying to edit while not logged in.")
-		http.Redirect(w, r, "/"+articleId+"/", http.StatusFound)
-	}
 	if r.Method == "GET" {
 		var article Article
 		err := db.Read("article", articleId, &article)
@@ -98,7 +98,13 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		article.Markdown = string(form["content"])
+		article.Markdown = string(form["markdown"])
+		article.Title = string(form["title"])
+		if form["comments"] == "true" {
+			article.Comments = true
+		} else {
+			article.Comments = false
+		}
 		article.render()
 
 		if err := db.Write("article", articleId, &article); err != nil {
@@ -127,7 +133,6 @@ func (r Response) String() (s string) {
 }
 
 func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	log.Println(c.Env, c.URLParams)
 	err := r.ParseMultipartForm(200000) // grab the multipart form
 	if err != nil {
 		fmt.Fprintln(w, err)
@@ -189,7 +194,6 @@ func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 }
 
 func viewImageHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	log.Println(c.Env, c.URLParams)
 	file := c.URLParams["file"]
 	http.ServeFile(w, r, "./upload/"+file)
 }

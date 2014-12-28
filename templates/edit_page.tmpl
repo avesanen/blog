@@ -1,13 +1,34 @@
 {{define "edit_page"}}
  {{template "header" .}}
-  <div class="row"></div>
+
+  <div class="row">
+   <div class="twelve columns">    
+    <label for="enableComments">
+     <span class="label-body">Page title</span><br/>
+     <input type="text" id="pageTitle" value="{{.Article.Title}}">
+    </label>
+   </div>
+  </div>
+
   <div class="row">
    <div class="twelve columns" id="editor">{{.Article.Markdown}}</div>
   </div> 
+
+  <div class="row">
+   <div class="six columns">
+    <label for="enableComments">
+     <input type="checkbox" class="checkbox" name="comments" {{if .Article.Comments}}checked{{end}} value="comments" id="enableComments">
+     <span class="label-body">Enable Comments</span>
+   </label><br/>
+  </div>
+
+  </div>
   <div class="row">
    <div class="twelve columns">
+   <button id="cancel">cancel</button>
     <button id="submit">submit</button>
    </div>
   </div>
+
  {{template "footer" .}}
 {{end}}

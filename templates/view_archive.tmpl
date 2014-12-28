@@ -1,0 +1,25 @@
+{{define "view_archive"}}
+ {{template "header" .}}
+ {{ $Archive := .Archive }}
+
+
+<ul>
+ {{range $Chapter := .Chapters}}
+  <li>
+   <a href="/archive/{{$Archive.Id}}/{{$Chapter.Id}}">{{ $Chapter.Title }}</a>
+   <ul>
+    {{ range $Page := $Chapter.Pages }}
+     <li>
+      <a href="/archive/{{$Archive.Id}}/{{$Chapter.Id}}/{{$Page}}">{{ $Page }}</a>
+     </li>
+    {{end}}
+   </ul>
+  </li>
+ {{end}}
+</ul>
+
+
+
+
+ {{template "footer" .}}
+{{end}}

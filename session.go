@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/securecookie"
+	"github.com/zenazn/goji/web"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
+	"time"
 )
 
 // cookie handling
@@ -21,6 +24,14 @@ type User struct {
 
 type Session struct {
 	User *User
+}
+
+func setJwt() {
+	token := jwt.New(jwt.GetSigningMethod("HS256"))
+	token.Claims["foo"] = "bar"
+	token.Claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	log.Println(token)
+	//tokenString, err := token.SignedString(mySigningKey)
 }
 
 func setSession(s *Session, w http.ResponseWriter) {
@@ -60,38 +71,28 @@ func clearSession(w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		renderTemplate(w, r, "login_page", map[string]interface{}{})
-	}
-	if r.Method == "POST" {
-		username := r.FormValue("username")
-		password := r.FormValue("password")
-		redirectTarget := "/login/"
+func loginHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	//if b, err := bcrypt.GenerateFromPassword([]byte(password), 10); err == nil {
+	//	log.Println("bcrypt hash:", string(b))
+	//}
 
-		if b, err := bcrypt.GenerateFromPassword([]byte(password), 10); err == nil {
-			log.Println("bcrypt hash:", string(b))
+	var user User
+	if err := db.Read("users", username, &user); err == nil {
+		if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err == nil {
+			session := &Session{}
+			session.User = &User{}
+			session.User.Username = user.Username
+			setSession(session, w)
+		} else {
+			log.Println("password doesn't match?", err.Error())
 		}
-
-		var user User
-		if err := db.Read("users", username, &user); err == nil {
-			if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err == nil {
-				session := &Session{}
-				session.User = &User{}
-				session.User.Username = user.Username
-
-				setSession(session, w)
-				redirectTarget = "/index/"
-			} else {
-				log.Println("password doesn't match?", err.Error())
-			}
-		}
-		log.Println("returning...")
-		http.Redirect(w, r, redirectTarget, http.StatusFound)
 	}
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func logoutHandler(w http.ResponseWriter, r *http.Request) {
+func logoutHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 	clearSession(w)
-	http.Redirect(w, r, "/index/", 302)
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
