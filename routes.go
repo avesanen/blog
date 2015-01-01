@@ -39,8 +39,8 @@ func (s *Server) Start() {
 	goji.Get("/img/:file", viewImageHandler)
 
 	// Archive
-	goji.Get("/archive", ListArchivesHandler)
-	goji.Get("/archive/:archiveId", ViewArchiveHandler)
+	//goji.Get("/archive", ListArchivesHandler)
+	//goji.Get("/archive/:archiveId", ViewArchiveHandler)
 
 	// Article routes
 	goji.Get("/:article/", articleViewHandler)
