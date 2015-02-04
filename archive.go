@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/zenazn/goji/web"
+	"log"
+	"net/http"
 	"sort"
 	"time"
 )
@@ -55,75 +58,17 @@ type byDate struct{ Pages }
 
 func (a byDate) Less(i, j int) bool { return a.Pages[i].PublishDate.After(a.Pages[j].PublishDate) }
 
+func ViewArchiveHandler(c web.C, w http.ResponseWriter, r *http.Request) {
+	archiveId := c.URLParams["archiveId"]
+	a := map[string]interface{}{}
+	a["archiveId"] = archiveId
+	page := r.URL.Query().Get("page")
+	show := r.URL.Query().Get("show")
+	log.Printf("Archive %v, page %v, show %v", archiveId, page, show)
+	renderTemplate(w, r, "view_archive", a)
+}
+
 /*
-// /:archive/:chapter/:page
-
-type Archive struct {
-	Id       string
-	Title    string   `json:"title"`
-	Chapters []string `json:"chapters"`
-}
-
-
-func (a *Archive) addChapter()
-func (a *Archive) getChapter(id string) (*Chapter, error) {
-	var c Chapter
-	if err := db.Read("chapters", id, &c); err == nil {
-		return &c, nil
-	} else {
-		return nil, err
-	}
-}
-
-func (a *Archive) getChapters() ([]*Chapter, error) {
-	chapters := make([]*Chapter, 0)
-	for _, v := range a.Chapters {
-		if c, err := a.getChapter(v); err == nil {
-			chapters = append(chapters, c)
-		} else {
-			log.Println(err.Error())
-			return nil, err
-		}
-	}
-	return chapters, nil
-}
-
-func (a *Archive) getPage(pageNumber int, pageSize int) []*Chapter {
-	start := pageNumber * pageSize
-	end := start + pageSize
-
-	if start > len(a.Chapters) {
-		return nil
-	}
-	if end > len(a.Chapters) {
-		end = len(a.Chapters) - start
-	}
-	return a.Chapters[start:end]
-}
-
-type Chapter struct {
-	Id    string
-	Title string   `json:"title"`
-	Pages []string `json:"pages"`
-}
-
-type Page struct {
-	Id          string
-	Title       string        `json:"title"`
-	Markdown    string        `json:"markdown"`
-	Content     template.HTML `json:"content"`
-	Comments    bool          `json:"comments"`
-	PublishDate time.Time     `json:"time"`
-}
-
-func readPage() *Page {
-	return nil
-}
-
-func ListArchivesHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/", http.StatusFound)
-}
-
 func ViewArchiveHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 	archiveId := c.URLParams["archiveId"]
 	a := map[string]interface{}{}

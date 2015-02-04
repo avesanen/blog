@@ -21,7 +21,7 @@
 
 		// now post a new XHR request
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/upload/');
+		xhr.open('POST', '/upload');
 		xhr.onload = function () {
 		  console.log(xhr.responseText);
 		  if (xhr.status === 200) {

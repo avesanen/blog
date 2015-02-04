@@ -35,12 +35,12 @@ func (s *Server) Start() {
 	goji.Handle("/admin/*", admin)
 
 	// Image up/download
-	goji.Post("/upload/", requiresLogin(uploadPostHandler))
+	goji.Post("/upload", requiresLogin(uploadPostHandler))
 	goji.Get("/img/:file", viewImageHandler)
 
 	// Archive
-	//goji.Get("/archive", ListArchivesHandler)
-	//goji.Get("/archive/:archiveId", ViewArchiveHandler)
+	goji.Get("/archive", ViewArchiveHandler)
+	goji.Get("/archive/:archiveId", ViewArchiveHandler)
 
 	// Article routes
 	goji.Get("/:article/", articleViewHandler)
