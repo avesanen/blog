@@ -35,7 +35,7 @@ func renderTemplate(w http.ResponseWriter, r *http.Request, t string, a map[stri
 }
 
 func indexHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/index/", http.StatusSeeOther)
+	http.Redirect(w, r, "/a/index", http.StatusSeeOther)
 }
 
 func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func articleViewHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 	var article Article
 	err := db.Read("article", articleId, &article)
 	if err != nil {
-		http.Redirect(w, r, "/"+articleId+"/edit", http.StatusFound)
+		http.Redirect(w, r, "/a/"+articleId+"/edit", http.StatusFound)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(w, Response{"status": "ok", "url": "/" + articleId})
 		return
@@ -58,7 +58,20 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		err := db.Read("article", articleId, &article)
 		if err != nil {
 			article = Article{}
-			article.Title = "new page"
+			article.Id = articleId
+			article.Title = articleId
+			article.Content = ""
+			article.Comments = false
+			article.Markdown = ""
+		}
+		renderTemplate(w, r, "edit_page", map[string]interface{}{"Article": article})
+	} else if r.Method == "POST" {
+		var article Article
+		err := db.Read("article", articleId, &article)
+		if err != nil {
+			article = Article{}
+			article.Id = articleId
+			article.Title = articleId
 			article.Content = ""
 			article.Comments = false
 			article.Markdown = ""
@@ -66,17 +79,6 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), 500)
 				return
 			}
-		}
-		renderTemplate(w, r, "edit_page", map[string]interface{}{"Article": article})
-	} else if r.Method == "POST" {
-		var article Article
-		err := db.Read("article", articleId, &article)
-		if err != nil {
-			log.Println("Error reading body:", err.Error())
-			w.Header().Set("Content-Type", "application/json")
-			fmt.Fprint(w, Response{"status": "error", "msg": err.Error()})
-			http.Error(w, err.Error(), 500)
-			return
 		}
 
 		body, err := ioutil.ReadAll(r.Body)
@@ -116,7 +118,7 @@ func articleEditHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, Response{"status": "ok", "url": "/" + articleId + "/"})
+		fmt.Fprint(w, Response{"status": "ok", "url": "/a/" + articleId})
 	}
 }
 
@@ -161,7 +163,12 @@ func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		fSubType := ft[1]
 
 		filename := files[i].Filename
-		log.Println(fType, fSubType, filename)
+
+		fSplit := strings.Split(filename, ".")
+		fileExtension := fSplit[len(fSplit)-1]
+		fileId := randSeq(16)
+
+		filename = fileId + "." + fileExtension
 
 		if fType != "image" {
 			log.Println("Error not supported file:", fType+"/"+fSubType)
@@ -172,7 +179,7 @@ func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Crate file on disk
-		out, err := os.Create("./upload/" + filename)
+		out, err := os.Create("./upload/" + fileId + "." + fileExtension)
 		if err != nil {
 			log.Println(err.Error())
 			return
@@ -186,7 +193,6 @@ func uploadPostHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		urls = append(urls, "/img/"+filename)
-		//urls = append(urls, "./img/"+filename)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

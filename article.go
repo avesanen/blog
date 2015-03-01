@@ -7,6 +7,7 @@ import (
 )
 
 type Article struct {
+	Id       string        `json:"id"`
 	Title    string        `json:"title"`
 	Markdown string        `json:"markdown"`
 	Content  template.HTML `json:"content"`

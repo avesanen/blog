@@ -27,25 +27,21 @@ func (s *Server) Start() {
 	goji.Get("/", indexHandler)
 
 	// Login routes
-	goji.Post("/login", loginHandler)
-	goji.Get("/logout", requiresLogin(logoutHandler))
+	goji.Post("/u/login", loginHandler)
+	goji.Get("/u/logout", requiresLogin(logoutHandler))
 
 	// Admin console
 	admin := web.New()
 	goji.Handle("/admin/*", admin)
 
 	// Image up/download
-	goji.Post("/upload", requiresLogin(uploadPostHandler))
+	goji.Post("/img/upload", requiresLogin(uploadPostHandler))
 	goji.Get("/img/:file", viewImageHandler)
 
-	// Archive
-	goji.Get("/archive", ViewArchiveHandler)
-	goji.Get("/archive/:archiveId", ViewArchiveHandler)
-
 	// Article routes
-	goji.Get("/:article/", articleViewHandler)
-	goji.Get("/:article/edit", requiresLogin(articleEditHandler))
-	goji.Post("/:article/edit", requiresLogin(articleEditHandler))
+	goji.Get("/a/:article", articleViewHandler)
+	goji.Get("/a/:article/edit", requiresLogin(articleEditHandler))
+	goji.Post("/a/:article/edit", requiresLogin(articleEditHandler))
 
 	// Static routes
 	goji.Get("/*", http.FileServer(http.Dir("./static/")))

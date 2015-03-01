@@ -48,11 +48,11 @@
       <div class="row"></div>
        <div class="row">
         <div class="twelve columns">  
-         <a href="/index/" class="button u-pull-left">Home</a>
-         <a href="/about/" class="button u-pull-left">About</a>
-         <a href="./edit" class="button u-pull-right">Edit</a>
+         <a href="/a/index" class="button u-pull-left">Home</a>
+         <a href="/a/about" class="button u-pull-left">About</a>
+         <a href="/a/{{.Article.Id}}/edit" class="button u-pull-right">Edit</a>
          {{if .Session}}
-          <a href="/logout" class="button u-pull-right">Logout {{.Session.User.Username }}</a>
+          <a href="/u/logout" class="button u-pull-right">Logout {{.Session.User.Username }}</a>
          {{end}}
        </div>
       </div>

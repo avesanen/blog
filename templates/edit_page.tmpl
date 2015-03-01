@@ -54,7 +54,7 @@
 
 		// now post a new XHR request
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/upload');
+		xhr.open('POST', '/img/upload');
 		xhr.onload = function () {
 		  console.log(xhr.responseText);
 		  if (xhr.status === 200) {
@@ -100,7 +100,7 @@
 
 	var submitEditor = function(content) {
 		var xhr = new XMLHttpRequest();   // new HttpRequest instance 
-		xhr.open("POST", "./edit");
+		xhr.open("POST", "/a/{{.Article.Id}}/edit");
 		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 		xhr.onload = function () {
 		  console.log(xhr.responseText);
