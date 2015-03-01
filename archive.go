@@ -67,21 +67,3 @@ func ViewArchiveHandler(c web.C, w http.ResponseWriter, r *http.Request) {
 	log.Printf("Archive %v, page %v, show %v", archiveId, page, show)
 	renderTemplate(w, r, "view_archive", a)
 }
-
-/*
-func ViewArchiveHandler(c web.C, w http.ResponseWriter, r *http.Request) {
-	archiveId := c.URLParams["archiveId"]
-	a := map[string]interface{}{}
-	var v Archive
-	if err := db.Read("archive", archiveId, &v); err == nil {
-		a["Archive"] = v
-		if chapters, err := v.getChapters(); err == nil {
-			a["Chapters"] = chapters
-		}
-		log.Println(a)
-		renderTemplate(w, r, "view_archive", a)
-	} else {
-		http.Error(w, "not found", http.StatusNotFound)
-	}
-}
-*/
