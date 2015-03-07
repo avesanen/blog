@@ -19,13 +19,10 @@
     <label for="enableComments">
      <input type="checkbox" class="checkbox" name="comments" {{if .Article.Comments}}checked{{end}} value="comments" id="enableComments">
      <span class="label-body">Enable Comments</span>
-   </label><br/>
-  </div>
-
-  </div>
+   </label>
   <div class="row">
    <div class="twelve columns">
-   <button id="cancel">cancel</button>
+    <button id="cancel">cancel</button>
     <button id="submit">submit</button>
    </div>
   </div>
@@ -41,7 +38,8 @@
 		value: "{{.Article.Markdown}}",
   		mode:  "markdown",
 		theme: "monokai",
-		dragDrop: false
+		dragDrop: false,
+		lineNumbers: true,
 	});
 	
 	console.log(myCodeMirror);

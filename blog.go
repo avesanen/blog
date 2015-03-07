@@ -17,6 +17,6 @@ func init() {
 
 func main() {
 	log.Println("Blog started.")
-	s := newServer("", "5000")
+	s := newServer("", "80")
 	s.Start()
 }
